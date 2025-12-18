@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cardiology Prometric – 60-Day Dashboard</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+h1 { text-align: center; color: #333; }
+.section { max-width: 700px; margin: auto; background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 0 8px rgba(0,0,0,0.1);}
+button { padding: 8px 15px; margin: 4px; font-size: 14px; cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 5px;}
+button:hover { background: #45a049; }
+#output { margin-top: 20px; padding: 10px; background: #eee; border-radius: 5px; min-height: 60px;}
+#daysContainer button { display: block; width: 100%; text-align: left; }
+</style>
+</head>
+<body>
+
+<h1>Cardiology Prometric – 60-Day Dashboard</h1>
+
+<div class="section">
+<h2>Golden Rule / Law</h2>
+<button onclick="showLaw()">Show Golden Rule</button>
+<div id="lawText" style="margin-top:10px; padding:10px; background:#f9f9f9; border-radius:5px;"></div>
+</div>
+
+<div class="section">
+<h2>Help / Instructions</h2>
+<button onclick="showHelp()">Show Instructions</button>
+<div id="helpText" style="margin-top:10px; padding:10px; background:#f9f9f9; border-radius:5px;"></div>
+</div>
+
+<div class="section">
+<h2>Generate Day Script & MP3</h2>
+<div id="daysContainer"></div>
+</div>
+
+<div class="section">
+<h2>Output</h2>
+<div id="output"></div>
+</div>
+
+<script>
+// لیست 60 روز
+const days = [
+"Day 1 – ACS STEMI: First 10 Minutes",
+"Day 2 – STEMI Reperfusion Strategy",
+"Day 3 – NSTEMI Risk Stratification",
+"Day 4 – Unstable Angina",
+"Day 5 – Complications of MI",
+"Day 6 – Cardiogenic Shock",
+"Day 7 – Chest Pain DDx",
+"Day 8 – Aortic Dissection",
+"Day 9 – Pulmonary Embolism",
+"Day 10 – Review / Buffer",
+"Day 11 – Acute Decompensated HF",
+"Day 12 – Chronic HF (HFrEF vs HFpEF)",
+"Day 13 – GDMT",
+"Day 14 – Diuretics",
+"Day 15 – Cardiorenal Syndrome",
+"Day 16 – HF Devices (ICD, CRT, LVAD)",
+"Day 17 – Valvular Causes of HF",
+"Day 18 – Review / Buffer",
+"Day 19 – Bradyarrhythmia & AV Blocks",
+"Day 20 – SVT Acute Management",
+"Day 21 – AF Rate vs Rhythm",
+"Day 22 – AF Anticoagulation",
+"Day 23 – Ventricular Tachycardia",
+"Day 24 – VF & Cardiac Arrest",
+"Day 25 – Long QT, Brugada, WPW",
+"Day 26 – Pacemaker Indications",
+"Day 27 – Antiarrhythmic Drugs",
+"Day 28 – Review / Buffer",
+"Day 29 – Primary HTN",
+"Day 30 – Hypertensive Emergency",
+"Day 31 – Secondary HTN Causes",
+"Day 32 – Resistant HTN",
+"Day 33 – Peripheral Artery Disease",
+"Day 34 – Carotid Disease & Stroke Prevention",
+"Day 35 – Aneurysm Basics",
+"Day 36 – Review / Buffer",
+"Day 37 – Aortic Stenosis",
+"Day 38 – Aortic Regurgitation",
+"Day 39 – Mitral Stenosis",
+"Day 40 – Mitral Regurgitation",
+"Day 41 – Prosthetic Valves & Anticoagulation",
+"Day 42 – Infective Endocarditis",
+"Day 43 – Pericardial Disease",
+"Day 44 – Review / Buffer",
+"Day 45 – Dilated Cardiomyopathy",
+"Day 46 – Hypertrophic Cardiomyopathy",
+"Day 47 – Restrictive Cardiomyopathy",
+"Day 48 – Myocarditis",
+"Day 49 – Adult Congenital Basics",
+"Day 50 – Cyanotic vs Acyanotic",
+"Day 51 – Pregnancy & Heart Disease",
+"Day 52 – Review / Buffer",
+"Day 53 – Antiplatelets",
+"Day 54 – Anticoagulants",
+"Day 55 – Statins & Lipid Management",
+"Day 56 – Antianginals",
+"Day 57 – Inotropes & Vasopressors",
+"Day 58 – Drug Interactions & Contraindications",
+"Day 59 – Full Review",
+"Day 60 – Launch Prep"
+];
+
+// ایجاد دکمه‌ها بدون document.write
+const container = document.getElementById('daysContainer');
+days.forEach((dayText, index) => {
+  const btn = document.createElement('button');
+  btn.innerText = dayText;
+  btn.onclick = () => generateDay(index+1);
+  container.appendChild(btn);
+});
+
+function showLaw(){
+  const lawText = `
+  <b>Golden Rule – Locked Version:</b><br>
+  Every day: 1 episode 10–12 minutes<br>
+  Episode = full script + MP3<br>
+  Specialist-level & Prometric-oriented<br>
+  Include: history, exam, paraclinical, diagnosis, drugs with doses & routes, adverse effects, monitoring, treatment, complications & timing<br>
+  No deletion allowed; only exam-relevant supplementary notes may be added.
+  `;
+  document.getElementById('lawText').innerHTML = lawText;
+}
+
+function showHelp(){
+  const helpText = `
+  1. Click on the day to generate the script & MP3.<br>
+  2. A form will appear to submit the day number.<br>
+  3. After submission, provide this day number to ChatGPT to generate the full episode.<br>
+  4. The generated script & MP3 links will appear in the Output box.<br>
+  5. Use 'Show Golden Rule' anytime to review the production rules.
+  `;
+  document.getElementById('helpText').innerHTML = helpText;
+}
+
+function generateDay(day){
+  const output = document.getElementById('output');
+  output.innerHTML = `Generating script & MP3 for Day ${day} ...<br>`;
+  const form = document.createElement('form');
+  form.onsubmit = (e) => sendDay(e, day);
+  const label = document.createElement('label');
+  label.innerText = `Confirm generate for Day ${day}: `;
+  const submit = document.createElement('input');
+  submit.type = "submit";
+  submit.value = "Generate";
+  form.appendChild(label);
+  form.appendChild(submit);
+  output.appendChild(form);
+}
+
+function sendDay(event, day){
+  event.preventDefault();
+  const output = document.getElementById('output');
+  output.innerHTML = `✅ Day ${day} submitted for script & MP3 generation.<br>`;
+  output.innerHTML += "Now, provide this day number to ChatGPT to generate the full episode.";
+}
+</script>
+
+</body>
+</html>
